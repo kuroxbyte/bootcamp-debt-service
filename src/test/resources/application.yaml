@@ -1,0 +1,29 @@
+# Configuración de las pruebas: no se consulta config-server.
+spring:
+  application:
+    name: debt-service
+  cloud:
+    config:
+      enabled: false
+  mongodb:
+    uri: mongodb://localhost:27017/debt_test_db
+  kafka:
+    bootstrap-servers: localhost:9092
+    admin:
+      # Las pruebas no crean tópicos ni esperan a un broker.
+      auto-create: false
+    listener:
+      # Los consumidores se prueban directamente, sin broker.
+      auto-startup: false
+
+messaging:
+  topics:
+    credit-events: credit-events
+    transaction-events: transaction-events
+    debt-events: debt-events
+
+debt:
+  evaluation:
+    # Nunca durante las pruebas (31 de febrero).
+    cron: "0 0 0 31 2 *"
+    days-ahead: 0
