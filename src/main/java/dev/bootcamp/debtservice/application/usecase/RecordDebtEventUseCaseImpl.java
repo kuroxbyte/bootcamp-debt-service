@@ -5,23 +5,15 @@ import dev.bootcamp.debtservice.domain.model.Credit;
 import dev.bootcamp.debtservice.domain.model.CreditCard;
 import dev.bootcamp.debtservice.domain.model.DebtMovement;
 import io.reactivex.rxjava3.core.Completable;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Implementación de {@link RecordDebtEventUseCase}.
  */
+@RequiredArgsConstructor
 public class RecordDebtEventUseCaseImpl implements RecordDebtEventUseCase {
     private final DebtRepository debtRepository;
     private final EvaluateDebtUseCase evaluateDebtUseCase;
-
-    /**
-     * Crea el caso de uso con el adaptador de su puerto y la evaluación de deuda.
-     */
-    public RecordDebtEventUseCaseImpl(
-            DebtRepository debtRepository,
-            EvaluateDebtUseCase evaluateDebtUseCase) {
-        this.debtRepository = debtRepository;
-        this.evaluateDebtUseCase = evaluateDebtUseCase;
-    }
 
     @Override
     public Completable recordCredit(Credit credit) {

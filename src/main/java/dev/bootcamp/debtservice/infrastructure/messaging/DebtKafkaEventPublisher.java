@@ -4,6 +4,7 @@ import dev.bootcamp.debtservice.application.port.DebtEventPublisher;
 import dev.bootcamp.debtservice.domain.model.CustomerDebtStatus;
 import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import tools.jackson.databind.json.JsonMapper;
@@ -23,26 +24,13 @@ import java.util.UUID;
  * el estado no se dé por publicado y se vuelva a intentar.
  */
 @Slf4j
+@RequiredArgsConstructor
 public class DebtKafkaEventPublisher implements DebtEventPublisher {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final JsonMapper jsonMapper;
     private final Clock clock;
     private final String topic;
-
-    /**
-     * Crea el publicador con el reloj que fecha los eventos y el tópico.
-     */
-    public DebtKafkaEventPublisher(
-            KafkaTemplate<String, String> kafkaTemplate,
-            JsonMapper jsonMapper,
-            Clock clock,
-            String topic) {
-        this.kafkaTemplate = kafkaTemplate;
-        this.jsonMapper = jsonMapper;
-        this.clock = clock;
-        this.topic = topic;
-    }
 
     @Override
     public Completable publishStatusChanged(CustomerDebtStatus status) {
