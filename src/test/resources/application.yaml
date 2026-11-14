@@ -16,6 +16,11 @@ spring:
       # Los consumidores se prueban directamente, sin broker.
       auto-startup: false
 
+eureka:
+  client:
+    # Las pruebas no se registran en Eureka.
+    enabled: false
+
 messaging:
   topics:
     credit-events: credit-events
