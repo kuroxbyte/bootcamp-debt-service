@@ -60,4 +60,27 @@ class CreditEventListenerTest {
 
         verifyNoInteractions(recordDebtEventUseCase);
     }
+
+    @Test
+    void replacesUpdatedCreditAndCard() {
+        Credit credit = new Credit("k1", "c1", new BigDecimal("5000"), LocalDate.of(2028, 1, 15));
+        CreditCard card = new CreditCard("t1", "c1", 20);
+        when(recordDebtEventUseCase.recordCredit(credit)).thenReturn(Completable.complete());
+        when(recordDebtEventUseCase.recordCreditCard(card)).thenReturn(Completable.complete());
+
+        listener.onCreditEvent("{\"eventType\":\"CreditUpdated\",\"creditId\":\"k1\","
+                + "\"customerId\":\"c1\",\"amount\":5000,\"dueDate\":\"2028-01-15\"}");
+        listener.onCreditEvent("{\"eventType\":\"CreditCardUpdated\",\"creditCardId\":\"t1\","
+                + "\"customerId\":\"c1\",\"paymentDueDay\":20}");
+
+        verify(recordDebtEventUseCase).recordCredit(credit);
+        verify(recordDebtEventUseCase).recordCreditCard(card);
+    }
+
+    @Test
+    void ignoresClosedProducts() {
+        listener.onCreditEvent("{\"eventType\":\"CreditClosed\",\"customerId\":\"c1\"}");
+
+        verifyNoInteractions(recordDebtEventUseCase);
+    }
 }
