@@ -13,7 +13,9 @@ import tools.jackson.databind.json.JsonMapper;
 import java.time.LocalDate;
 
 /**
- * Consume el tópico {@code credit-events} de credit-service: créditos y tarjetas otorgados. El
+ * Consume el tópico {@code credit-events} de credit-service: créditos y tarjetas otorgados o
+ * modificados (nueva fecha de vencimiento o día de pago). Las bajas se ignoran: solo se da de baja
+ * un producto sin deuda. El
  * contrato está en {@code docs/events/asyncapi.yaml} del repositorio raíz.
  *
  * <p>Ignora los tipos de evento que no conoce. Si registrar falla, la excepción hace que Kafka
@@ -38,12 +40,14 @@ public class CreditEventListener {
         String eventType = event.path("eventType").asString();
         String customerId = event.path("customerId").asString();
         switch (eventType) {
-            case "CreditGranted" -> recordDebtEventUseCase.recordCredit(new Credit(
+            // Una modificación trae el estado completo: reemplaza la copia y recalcula la deuda.
+            case "CreditGranted", "CreditUpdated" -> recordDebtEventUseCase.recordCredit(new Credit(
                     event.get("creditId").asString(),
                     customerId,
                     event.get("amount").decimalValue(),
                     LocalDate.parse(event.get("dueDate").asString()))).blockingAwait();
-            case "CreditCardGranted" -> recordDebtEventUseCase.recordCreditCard(new CreditCard(
+            case "CreditCardGranted", "CreditCardUpdated" ->
+                    recordDebtEventUseCase.recordCreditCard(new CreditCard(
                     event.get("creditCardId").asString(),
                     customerId,
                     event.get("paymentDueDay").asInt())).blockingAwait();
